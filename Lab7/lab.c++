@@ -1,9 +1,6 @@
-/**************** Include ****************/
-#include <iostream>
-#include <cstring>
-#include <iomanip>
-
-using namespace std;
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 /**************** Struct ****************/
 struct studentNode {
@@ -11,18 +8,18 @@ struct studentNode {
     int age;
     char sex;
     float gpa;
-    studentNode* next;
+    struct studentNode* next;
 };
 
-/**************** Class Prototype ****************/
+/**************** Class ****************/
 class LinkedList {
 protected:
-    studentNode* start;
-    studentNode** now;
+    struct studentNode* start;
+    struct studentNode** now;
 
 public:
     LinkedList();
-    virtual ~LinkedList();
+    ~LinkedList();
 
     void InsNode(const char n[], int a, char s, float g);
     void DelNode();
@@ -34,50 +31,20 @@ class NewList : public LinkedList {
 public:
     void InsertNode(const char n[], int a, char s, float g);
     void GoFirst();
-    void ShowNode() override;
+    void ShowNode();
 };
-
-/**************** Main ****************/
-int main() {
-
-    LinkedList listA;
-    NewList listB;
-    LinkedList* listC = nullptr;
-
-    listA.InsNode("one", 1, 'A', 1.1f);
-    listA.InsNode("two", 2, 'B', 2.2f);
-    listA.InsNode("three", 3, 'C', 3.3f);
-
-    listA.GoNext();
-    listA.ShowNode();
-
-    listB.InsertNode("four", 4, 'D', 4.4f);
-    listB.InsertNode("five", 5, 'E', 5.5f);
-    listB.InsertNode("six", 6, 'F', 6.6f);
-
-    listB.GoNext();
-    listB.DelNode();
-    listB.ShowNode();
-
-    listC = &listA;
-    listC->GoNext();
-    listC->ShowNode();
-
-    listC = &listB;
-    listC->ShowNode();
-
-    return 0;
-}
 
 /**************** Implementation ****************/
 
-LinkedList::LinkedList() : start(nullptr) {
+LinkedList::LinkedList() {
+    start = NULL;
     now = &start;
 }
 
 LinkedList::~LinkedList() {
-    while (start != nullptr) {
-        studentNode* temp = start;
+    struct studentNode* temp;
+    while (start != NULL) {
+        temp = start;
         start = start->next;
         delete temp;
     }
@@ -85,11 +52,10 @@ LinkedList::~LinkedList() {
 
 void LinkedList::InsNode(const char n[], int a, char s, float g) {
 
-    studentNode* newNode = new studentNode;
+    struct studentNode* newNode =
+        (struct studentNode*)malloc(sizeof(struct studentNode));
 
-    strncpy(newNode->name, n, sizeof(newNode->name) - 1);
-    newNode->name[sizeof(newNode->name) - 1] = '\0';
-
+    strcpy(newNode->name, n);
     newNode->age = a;
     newNode->sex = s;
     newNode->gpa = g;
@@ -100,28 +66,28 @@ void LinkedList::InsNode(const char n[], int a, char s, float g) {
 
 void LinkedList::DelNode() {
 
-    if (now != nullptr && *now != nullptr) {
-        studentNode* temp = *now;
+    if (*now != NULL) {
+        struct studentNode* temp = *now;
         *now = (*now)->next;
-        delete temp;
+        free(temp);
     }
 }
 
 void LinkedList::GoNext() {
 
-    if (now != nullptr && *now != nullptr && (*now)->next != nullptr) {
+    if (*now != NULL && (*now)->next != NULL) {
         now = &((*now)->next);
     }
 }
 
 void LinkedList::ShowNode() {
 
-    if (now != nullptr && *now != nullptr) {
-        cout << (*now)->name << " "
-             << (*now)->age << " "
-             << (*now)->sex << " "
-             << fixed << setprecision(2)
-             << (*now)->gpa << endl;
+    if (*now != NULL) {
+        printf("%s %d %c %.2f\n",
+               (*now)->name,
+               (*now)->age,
+               (*now)->sex,
+               (*now)->gpa);
     }
 }
 
@@ -135,8 +101,40 @@ void NewList::GoFirst() {
 
 void NewList::ShowNode() {
 
-    if (start != nullptr && now != nullptr && *now != nullptr) {
-        cout << start->name << " "
-             << (*now)->name << endl;
+    if (start != NULL && *now != NULL) {
+        printf("%s %s\n", start->name, (*now)->name);
     }
+}
+
+/**************** Main ****************/
+
+int main() {
+
+    LinkedList listA;
+    NewList listB;
+    LinkedList* listC;
+
+    listA.InsNode("one", 1, 'A', 1.1);
+    listA.InsNode("two", 2, 'B', 2.2);
+    listA.InsNode("three", 3, 'C', 3.3);
+
+    listA.GoNext();
+    listA.ShowNode();
+
+    listB.InsertNode("four", 4, 'D', 4.4);
+    listB.InsertNode("five", 5, 'E', 5.5);
+    listB.InsertNode("six", 6, 'F', 6.6);
+
+    listB.GoNext();
+    listB.DelNode();
+    listB.ShowNode();
+
+    listC = &listA;
+    listC->GoNext();
+    listC->ShowNode();
+
+    listC = &listB;
+    listC->ShowNode();
+
+    return 0;
 }
