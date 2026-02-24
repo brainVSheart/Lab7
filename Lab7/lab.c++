@@ -11,19 +11,20 @@ struct studentNode {
     int age;
     char sex;
     float gpa;
-    struct studentNode *next;
+    studentNode* next;
 };
 
 /**************** Class Prototype ****************/
 class LinkedList {
 protected:
-    struct studentNode *start, **now;
+    studentNode* start;
+    studentNode** now;
 
 public:
     LinkedList();
-    ~LinkedList();
+    virtual ~LinkedList();
 
-    void InsNode(char n[], int a, char s, float g);
+    void InsNode(const char n[], int a, char s, float g);
     void DelNode();
     void GoNext();
     virtual void ShowNode();
@@ -31,9 +32,9 @@ public:
 
 class NewList : public LinkedList {
 public:
-    void InsertNode(char n[], int a, char s, float g);
+    void InsertNode(const char n[], int a, char s, float g);
     void GoFirst();
-    virtual void ShowNode();
+    void ShowNode() override;
 };
 
 /**************** Main ****************/
@@ -41,17 +42,19 @@ int main() {
 
     LinkedList listA;
     NewList listB;
-    LinkedList *listC;
+    LinkedList* listC = nullptr;
 
-    listA.InsNode("one", 1, 'A', 1.1);
-    listA.InsNode("two", 2, 'B', 2.2);
-    listA.InsNode("three", 3, 'C', 3.3);
+    listA.InsNode("one", 1, 'A', 1.1f);
+    listA.InsNode("two", 2, 'B', 2.2f);
+    listA.InsNode("three", 3, 'C', 3.3f);
+
     listA.GoNext();
     listA.ShowNode();
 
-    listB.InsertNode("four", 4, 'D', 4.4);
-    listB.InsertNode("five", 5, 'E', 5.5);
-    listB.InsertNode("six", 6, 'F', 6.6);
+    listB.InsertNode("four", 4, 'D', 4.4f);
+    listB.InsertNode("five", 5, 'E', 5.5f);
+    listB.InsertNode("six", 6, 'F', 6.6f);
+
     listB.GoNext();
     listB.DelNode();
     listB.ShowNode();
@@ -68,25 +71,25 @@ int main() {
 
 /**************** Implementation ****************/
 
-LinkedList::LinkedList() {
-    start = NULL;
+LinkedList::LinkedList() : start(nullptr) {
     now = &start;
 }
 
 LinkedList::~LinkedList() {
-    struct studentNode *temp;
-    while (start != NULL) {
-        temp = start;
+    while (start != nullptr) {
+        studentNode* temp = start;
         start = start->next;
         delete temp;
     }
 }
 
-void LinkedList::InsNode(char n[], int a, char s, float g) {
+void LinkedList::InsNode(const char n[], int a, char s, float g) {
 
-    struct studentNode *newNode = new struct studentNode;
+    studentNode* newNode = new studentNode;
 
-    strcpy(newNode->name, n);
+    strncpy(newNode->name, n, sizeof(newNode->name) - 1);
+    newNode->name[sizeof(newNode->name) - 1] = '\0';
+
     newNode->age = a;
     newNode->sex = s;
     newNode->gpa = g;
@@ -97,8 +100,8 @@ void LinkedList::InsNode(char n[], int a, char s, float g) {
 
 void LinkedList::DelNode() {
 
-    if (*now != NULL) {
-        struct studentNode *temp = *now;
+    if (now != nullptr && *now != nullptr) {
+        studentNode* temp = *now;
         *now = (*now)->next;
         delete temp;
     }
@@ -106,14 +109,14 @@ void LinkedList::DelNode() {
 
 void LinkedList::GoNext() {
 
-    if (*now != NULL && (*now)->next != NULL) {
+    if (now != nullptr && *now != nullptr && (*now)->next != nullptr) {
         now = &((*now)->next);
     }
 }
 
 void LinkedList::ShowNode() {
 
-    if (*now != NULL) {
+    if (now != nullptr && *now != nullptr) {
         cout << (*now)->name << " "
              << (*now)->age << " "
              << (*now)->sex << " "
@@ -122,7 +125,7 @@ void LinkedList::ShowNode() {
     }
 }
 
-void NewList::InsertNode(char n[], int a, char s, float g) {
+void NewList::InsertNode(const char n[], int a, char s, float g) {
     InsNode(n, a, s, g);
 }
 
@@ -132,7 +135,7 @@ void NewList::GoFirst() {
 
 void NewList::ShowNode() {
 
-    if (start != NULL && *now != NULL) {
+    if (start != nullptr && now != nullptr && *now != nullptr) {
         cout << start->name << " "
              << (*now)->name << endl;
     }
